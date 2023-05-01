@@ -80,6 +80,7 @@
     this.room = room;
     this.username = username;
     this.chats = colRef;
+    this.unsub;
   }
   async addChat(message) {
     // format a chat object
@@ -97,7 +98,7 @@
 
   getChats(callback){
     const q = query(this.chats, where('room', '==', this.room), orderBy('created_at'));
-    onSnapshot(q, snapshot => {
+    this.unsub = onSnapshot(q, snapshot => {
     snapshot.docChanges().forEach(change => {
       if (change.type === 'added') {
         // update the ui
@@ -116,6 +117,9 @@
   updateRoom(room){
     this.room = room;
     console.log(this.room);
+    if(this.unsub){
+      this.unsub();
+    }
   }
 }
 
@@ -137,12 +141,18 @@ newChatForm.addEventListener('submit', e => {
 
 // delete a chat
 chatList.addEventListener('click', e => {
+  e.preventDefault();
   console.log(e);
   if(e.target.tagName === 'BUTTON'){
     const id = e.target.parentElement.getAttribute('data-id');
     console.log(id);
-    // chatroom.deleteChat(id);
+    deleteDoc(doc(colRef, id));
   }
+  // getDocs(colRef).then((snapshot) => {
+  //     snapshot.docs.forEach(doc => {
+  //       chatUI.render(doc.data(), doc.id);
+  //     });
+  //   });
 });
 
 // update username
@@ -172,10 +182,9 @@ class ChatUI {
     // );
     console.log('Rendering with id:', id);
     const html = `
-      <li class="list-group-item" id = "${id}">
+      <li class="list-group-item" data-id = "${id}">
         <span class="username">${data.username}</span>
         <span class="message">${data.message}</span>
-        <span class="id">${id}</span>
         <div class="time">${data.created_at.toDate()}</div>
         <button class="btn btn-danger btn-sm my-2">delete</button>
       </li>
@@ -190,7 +199,7 @@ rooms.addEventListener('click', e => {
   if(e.target.tagName === 'BUTTON'){
     chatUI.clear();
     chatroom.updateRoom(e.target.getAttribute('id'));
-    chatroom.getChats(chat => chatUI.render(chat));
+    chatroom.getChats((chat,id) => chatUI.render(chat,id));
   }
 });
 
@@ -205,10 +214,10 @@ const chatroom = new Chatroom('general', username);
 //   .catch(err => console.log(err));
 
 // get chats and render
-// chatroom.getChats((data,id) => {
-//   console.log('Received id:', id);
-//   chatUI.render(data,id);
-// });
+chatroom.getChats((data,id) => {
+  console.log('Received id:', id);
+  chatUI.render(data,id);
+});
 // setTimeout(() => {
 //   chatroom.updateRoom('general');
 //   chatroom.updateName('yoshi');
