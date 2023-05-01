@@ -125,7 +125,7 @@
   }
 }
 
-// delete a chat from ui
+// define a function: delete a chat from ui
 const deleteChat = (id) => {
   const chats = document.querySelectorAll('.list-group-item');
   chats.forEach(chat => {
@@ -211,6 +211,13 @@ rooms.addEventListener('click', e => {
     chatUI.clear();
     chatroom.updateRoom(e.target.getAttribute('id'));
     chatroom.getChats((chat,id) => chatUI.render(chat,id));
+    if (!e.target.classList.contains('active')) {
+  // Remove the 'active' class from all other buttons
+      const buttons = rooms.querySelectorAll('button');
+      buttons.forEach(button => button.classList.remove('active'));
+      // Add the 'active' class to the clicked button
+      e.target.classList.add('active');
+    }
   }
 });
 

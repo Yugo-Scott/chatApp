@@ -31,3 +31,7 @@
 .list-group-item{
   background-color: #7494C0;
 }
+.active {
+  background-color: #0e0ef9;
+  color: white;
+}
