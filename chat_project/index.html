@@ -223,10 +223,10 @@ rooms.addEventListener('click', e => {
 
 // check local storage for a name
 const username = localStorage.username ? localStorage.username : '不明ちゃん';
-
+const room = localStorage.room ? localStorage.room : 'general';
   // class instances
 const chatUI = new ChatUI(chatList);
-const chatroom = new Chatroom('general', username);
+const chatroom = new Chatroom(room, username);
 // chatroom.addChat('Hello everyone')
 //   .then(() => console.log('chat added'))
 //   .catch(err => console.log(err));
@@ -247,6 +247,8 @@ chatroom.getChats((data,id) => {
 
 // console.log(chatroom.__proto__ === Chatroom.prototype);
 
+// scroll to bottom
+newChatForm.scrollTop = newChatForm.scrollHeight;
 </script>
 </head>
 </body>
