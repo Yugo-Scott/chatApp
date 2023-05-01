@@ -10,7 +10,7 @@
 <body>
   <!-- container & title -->
   <div class="container my-4">
-    <h1 class="my-4 text-center">Ninja Chat</h1>
+    <h1 class="my-4 text-center">なんでも Chat</h1>
     <!-- buttons for chatrooms -->
     <div class="chat-rooms mb-3 text-center">
       <div class="my-2">チャット部屋選択してね:</div>
@@ -106,6 +106,8 @@
         callback(change.doc.data(),change.doc.id);
         // console.log(change.doc.data());
         console.log(change.doc.id);
+      }else if(change.type === 'removed'){
+        deleteChat (change.doc.id);
       }
     });
   });
@@ -123,6 +125,15 @@
   }
 }
 
+// delete a chat from ui
+const deleteChat = (id) => {
+  const chats = document.querySelectorAll('.list-group-item');
+  chats.forEach(chat => {
+    if(chat.getAttribute('data-id') === id){
+      chat.remove();
+    }
+  });
+}
 // dom queries
   const chatList = document.querySelector('.chat-list');
   const newChatForm = document.querySelector('.new-chat');
