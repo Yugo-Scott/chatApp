@@ -1,0 +1,201 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="stylesheet" href="styles.css">
+  <title>Ninja Chat</title>
+</head>
+<body>
+  <!-- container & title -->
+  <div class="container my-4">
+    <h1 class="my-4 text-center">Ninja Chat</h1>
+    <!-- buttons for chatrooms -->
+    <div class="chat-rooms mb-3 text-center">
+      <div class="my-2">チャット部屋選択してね:</div>
+      <button class="btn" id="general">#一般</button>
+      <button class="btn" id="mission">#布教部屋</button>
+      <button class="btn" id="salvation">#救済部屋</button>
+      <button class="btn" id="dog-house">#犬小屋</button>
+    </div>
+    <!-- chat list / window -->
+    <div class="chat-window">
+      <ul class="chat-list list-group"></ul>
+    </div>
+    <!-- new chat form -->
+    <form class="new-chat my-3">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <div class="input-group-text">Your message:</div>
+        </div>
+        <input type="text" id="message" class="form-control" required>
+        <div class="input-group-append">
+          <input type="submit" class="btn" value="send">
+        </div>
+      </div>
+    </form>
+    <!-- update name form -->
+    <form class="new-name my-3">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <div class="input-group-text">Update name:</div>
+        </div>
+        <input type="text" id="name" class="form-control" required>
+        <div class="input-group-append">
+          <input type="submit" class="btn" value="update">
+        </div>
+      </div>
+      <div class="update-mssg"></div>
+    </form>
+  </div>
+
+  <!-- Firebaseの実験場 -->
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-app.js";
+    import { getFirestore, collection, doc, Timestamp, addDoc, deleteDoc, getDocs, getDoc, onSnapshot, query, where, orderBy,updateDoc } 
+    from "https://www.gstatic.com/firebasejs/9.0.2/firebase-firestore.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBptr3tYR6jNQMHYBXlmJGCLdWYfUjgdvQ",
+      authDomain: "chatapp-1d6e5.firebaseapp.com",
+      projectId: "chatapp-1d6e5",
+      storageBucket: "chatapp-1d6e5.appspot.com",
+      messagingSenderId: "514556007605",
+      appId: "1:514556007605:web:2a10055bbcb3b26d401afc"
+    };
+
+    // initialize firebase app
+    const app = initializeApp(firebaseConfig);
+
+    //init services
+    const db = getFirestore(app);
+    // collection reference
+    const colRef = collection(db, "chats");
+
+    // query data
+//     const q = query(colRef, where('room', '==', 'general'), orderBy('created_at'));
+//  // real time 　query collection data
+//     onSnapshot(q, (snapshot) => {
+//           let chitchat =[];
+//           snapshot.docs.forEach(doc => {
+//             console.log(snapshot.docs);
+//             console.log(doc.id);
+//             console.log(doc.data());
+//             chitchat.push({...doc.data(), id: doc.id})
+//             addMsg(doc.data(), doc.id);
+//           });
+//           console.log(chitchat);
+//           console.log(snapshot);
+//           console.log(snapshot.docChanges());
+//     })
+    
+    // real time collection data
+        onSnapshot(colRef, snapshot => {
+          let chitchat =[];
+          console.log(snapshot);
+          console.log(snapshot.docs);
+          console.log(snapshot.docChanges()[0].type);
+          console.log(snapshot.docChanges()[0].doc.data());
+          snapshot.docs.forEach(doc => {
+            console.log(doc.id);
+            console.log(doc.data());
+            chitchat.push({...doc.data(), id: doc.id})
+            addMsg(doc.data(), doc.id);
+          });
+          console.log(chitchat);
+    })
+    // when we have the data
+    //adding chat documents
+    const form = document.querySelector('.new-chat');
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const now = new Date();
+      const chat = {
+        message: form.message.value,
+        // username: form.name.value,
+        room: 'general',
+        created_at: Timestamp.fromDate(now)
+      };
+      addDoc(colRef, chat).then(() => {
+        console.log("add success");
+        console.log(chat);
+        form.reset();
+      }).catch(err => {
+        console.log(err);
+      })
+    })
+
+    const addMsg = (msg,id) => {
+      let time = msg.created_at.toDate();
+      let html = `
+      <li data-id = "${id}">
+        <div>${msg.message}</div>
+      </li>
+      `;
+      console.log(html);
+      console.log(time);
+      }
+// get colloection data
+    // getDocs(colRef).then((snapshot) => {
+    //   let chitchat =[];
+    //   snapshot.docs.forEach(doc => {
+    //     console.log(snapshot.docs);
+    //     console.log(doc.id);
+    //     console.log(doc.data());
+    //     chitchat.push({...doc.data(), id: doc.id})
+    //     addMsg(doc.data(), doc.id);
+    //   });
+    //   console.log(chitchat);
+    // });
+
+// update a document
+// const updateForm = document.querySelector('.new-name');
+// updateForm.addEventListener('submit', e => {
+//   e.preventDefault();
+//   const docref = doc(db, 'chats', updateForm.name.value);
+//   updateDoc(docref, {
+//     username: updateForm.name.value
+//   }).then(() => {
+//     updateForm.reset();
+//   }).catch(err => {
+//     console.log(err);
+//   })
+// })
+
+//delete documents
+
+
+//     class Chatroom {
+//   constructor(room, username) {
+//     this.room = room;
+//     this.username = username;
+//     this.chats = colRef;
+//     // this.unsub;
+//   }
+//   async addChat(message) {
+//     // format a chat object
+//     const now = new Date();
+//     const chat = {
+//       message,
+//       username: this.username,
+//       room: this.room,
+//       created_at: Timestamp.fromDate(now)
+//     };
+//     // save the chat document
+//     const response = await addDoc(this.chats, chat);
+//     return response;
+//   }
+// }
+
+// const chatroom = new Chatroom('general', 'shaun');
+// chatroom.addChat('Hello everyone')
+//   .then(() => console.log('chat added'))
+//   .catch(err => console.log(err));
+
+// console.log(chatroom);
+</script>
+</body>
+</html>
