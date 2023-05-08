@@ -17,6 +17,7 @@
   background: #06c755;
   color: #000000;
   padding: 3px;
+  border-radius: 12px;
 }
 .time .updateMssg{
   font-size: 10px;
